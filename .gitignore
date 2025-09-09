@@ -1,22 +1,51 @@
-### AL ###
-#Template for AL projects for Dynamics 365 Business Central
-#launch.json folder
-.vscode/
-#Cache folder
-.alcache/
-#Symbols folder
-.alpackages/
-#Snapshots folder
-.snapshots/
-#Testing Output folder
-.output/
-#Extension App-file
-*.app
-#Rapid Application Development File
-rad.json
-#Translation Base-file
-*.g.xlf
-#License-file
-*.flf
-#Test results file
-TestResults.xml
+#include "LiquidCrystal.h"
+LiquidCrystal lcd(9,8,7,6,5,4);
+
+int GAS_VAL = 0;
+
+#define GREEN_LED 11
+#define RED_LED 12
+#define BUZZER 13
+#define RELAY 10  // For bulb/AC load
+
+void setup() {
+  pinMode(A0, INPUT); // MQ-6 A0 Pin
+  Serial.begin(9600);
+  lcd.begin(16,2);
+
+  pinMode(GREEN_LED, OUTPUT);
+  pinMode(RED_LED, OUTPUT);
+  pinMode(BUZZER, OUTPUT);
+  pinMode(RELAY, OUTPUT);
+
+  lcd.setCursor(0,0);
+  lcd.print("   GAS SENSOR   ");
+}
+
+void loop() {
+  GAS_VAL = analogRead(A0);
+  Serial.println(GAS_VAL);
+
+  if (GAS_VAL > 500) {
+    lcd.setCursor(0,1);
+    lcd.print("  LPG Detected  ");
+
+    digitalWrite(GREEN_LED, HIGH);
+    digitalWrite(RED_LED, LOW);
+
+    digitalWrite(RELAY, HIGH);     // Turn ON bulb
+    tone(BUZZER, 1000);            // Ring buzzer
+  } 
+  else {
+    lcd.setCursor(0,1);
+    lcd.print("LPG Not Detected");
+
+    digitalWrite(GREEN_LED, LOW);
+    digitalWrite(RED_LED, HIGH);
+
+    digitalWrite(RELAY, LOW);     
+    noTone(BUZZER);                // Stop buzzer
+  }
+
+  delay(200);
+}
